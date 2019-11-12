@@ -18,3 +18,4 @@ s.connect((host_ip, port))
 print("the socket has successfully connected to google on port  " + host_ip)
 
 a = ["1","2"]
+b = [i for i in range(3)]
