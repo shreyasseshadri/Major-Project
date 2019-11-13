@@ -38,14 +38,14 @@ for line in lines:
 def count_tokens():
     total_tokens=0
     mem_status,mem_tokens,_ = memory(file_token)
-    if mem_tokens > 0 :
+    if mem_status :
         total_tokens += mem_tokens
 
     com_status,com_tokens = compute(file_token)
     if com_status :
         total_tokens += com_tokens
 
-    net_status,not_tokens = network(file_token)
+    net_status,net_tokens = network(file_token)
     if net_status :
         total_tokens += net_tokens
 
@@ -106,7 +106,7 @@ def memory(file_token):
                 list_types.append((length,sent[info_index:].split(' ')[1]))
     return (True,list_tokens,list_types )if list_tokens>0 else (False,list_tokens,list_types)
 
-print(memory(file_token))
+#print(memory(file_token))
 
 def compute(file_token):
     iteration_count = 0 
@@ -119,10 +119,24 @@ def compute(file_token):
                 iteration_count+=int(for_count)
     return (False,iteration_count) if iteration_count==0 else (True,iteration_count)
 
-print(compute(file_token))
+#print(compute(file_token))
 
 def network(file_token):
     network_count = 0
     for line in file_token:
         sent = line[-1]
-        
+        connect_index = sent.find('.connect')
+        listen_index = sent.find('.listen')
+        send_index = sent.find('.send')
+        if connect_index > 0:
+            network_count += 1
+        if listen_index > 0:
+            network_count += 1
+        if send_index > 0:
+            offset = len(sent[send_index+5:])-4
+            network_count += 1
+            network_count += offset/100
+
+    return (False,network_count) if network_count==0 else (True,network_count)
+
+#print(network(file_token))
