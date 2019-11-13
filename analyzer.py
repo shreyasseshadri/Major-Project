@@ -85,7 +85,7 @@ def memory(file_token):
             info_index = sent.find('#TOK')
             if info_index >= 0:
                 list_types.append((length,sent[info_index:].split(' ')[1]))
-    return isList,list_tokens,list_types
+    return (True,list_tokens,list_types )if list_tokens>0 else (False,list_tokens,list_types)
 
 print(memory(file_token))
 
