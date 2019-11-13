@@ -72,14 +72,32 @@ def range_finder(line_token):
     return False, 0
 
 
-def check_list(file_token):
+def memory(file_token):
+    list_tokens = 0
+    list_types = []
     for line in file_token:
         isList, length = list_finder(line)
         if isList and length == 0:
             isList, length = range_finder(line)
         if isList:
-            return isList, length
-    return False,0
+            list_tokens+=int(length)
+            sent = line[-1]
+            info_index = sent.find('#TOK')
+            if info_index >= 0:
+                list_types.append((length,sent[info_index:].split(' ')[1]))
+    return isList,list_tokens,list_types
+
+print(memory(file_token))
 
 def compute(file_token):
-    
+    iteration_count = 0 
+    for line in file_token:
+        sent = line[-1]
+        for_index = sent.find('for')
+        if for_index >= 0:
+            is_for,for_count = range_finder(line)
+            if is_for:
+                iteration_count+=int(for_count)
+    return (False,iteration_count) if iteration_count==0 else (True,iteration_count)
+
+print(compute(file_token))
