@@ -68,9 +68,9 @@ def compute_score(file_token):
     com_score = com_tokens / total_tokens
     net_score = net_tokens / total_tokens
 
-    print("Memory score : ", mem_score, "\n", "Compute score : ",
-          com_score, "\n", "Network score : ", net_score, "\n")
-    return mem_score, com_score, net_score
+    # print("Memory score : ", mem_score, "\n", "Compute score : ",
+    #       com_score, "\n", "Network score : ", net_score, "\n")
+    return mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens
 
 
 def list_finder(line_token):
@@ -157,6 +157,18 @@ def network(file_token):
 
 
 for file in file_tokens:
-    print(file)
-    compute_score(file_tokens[file])
-    print('-'*90)
+    print(" File name : " + file.split('/')[1])
+    mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens = compute_score(
+        file_tokens[file])
+    print('')
+    print('Memory Tokens  : ' + str(mem_tokens))
+    print('compute Tokens : ' + str(com_tokens))
+    print('network Tokens : ' + str(net_tokens))
+    print('')
+
+    print('Memory Score  : ' + str(mem_score))
+    print('compute Score : ' + str(com_score))
+    print('network Score : ' + str(net_score))
+    print('')
+
+    print('='*90)

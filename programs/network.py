@@ -1,18 +1,14 @@
 import socket
-import sys
 
-try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("Socket successfully created")
-except socket.error as err:
-    print("socket creation failed with" + err)
-port = 80
-
-try:
-    host_ip = socket.gethostbyname('www.google.com')
-except socket.gaierror:
-    print("there was an error resolving the host")
-    sys.exit()
-
-s.connect((host_ip, port))
-print("the socket has successfully connected to google on port  " + host_ip)
+s = socket.socket()
+print("Socket successfully created")
+port = 12345
+s.bind(('', port))
+print("socket binded to %s" % (port))
+s.listen(5)
+print("socket is listening")
+while True:
+    c, addr = s.accept()
+    print('Got connection from', addr)
+    c.send('Thank you for connecting')
+    c.close()
