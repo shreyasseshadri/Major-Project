@@ -5,10 +5,10 @@ tokens = {}
 
 tokens['network'] = ['socket.socket', 'connect', 'listen']
 tokens['compute'] = ['for', 'while']
-tokens['memory'] = ['list', 'import']
+tokens['memory'] = ['import']
 
 PUNCTUATION = TOK.descr[TOK.PUNCTUATION]
-NUMBER  = TOK.descr[TOK.NUMBER]
+NUMBER = TOK.descr[TOK.NUMBER]
 
 count_token = {k: 0 for k in tokens}
 type_words = {k: set() for k in tokens}
@@ -49,37 +49,37 @@ def list_finder(line_token):
     index = -1
     flag = False
     for token in line_token[:-1]:
-        # print(token)
         index += 1
         if token[0] == PUNCTUATION and token[1] == '[':
             start_index = index
             flag = True
-            # print(index)
         if token[0] == PUNCTUATION and token[1] == ']' and index > start_index:
-            # print(index)
-            return True, elem_count+1 if elem_count>0 else 0
+            return True, elem_count+1 if elem_count > 0 else 0
         if token[0] == PUNCTUATION and token[1] == ',' and index > start_index and flag:
             elem_count += 1
-            # print("comma ",index)
-    return False,0
+    return False, 0
 
-def list_range_finder(line_token):
+
+def range_finder(line_token):
     flag = False
-    index = 0 
+    index = 0
     for token in line_token[:-1]:
-        index+=1
+        index += 1
         if token[1] == 'range':
-            flag =True
+            flag = True
         if token[0] == NUMBER and flag:
-            return True,token[1]
+            return True, token[1]
+    return False, 0
+
+
+def check_list(file_token):
+    for line in file_token:
+        isList, length = list_finder(line)
+        if isList and length == 0:
+            isList, length = range_finder(line)
+        if isList:
+            return isList, length
     return False,0
 
-
-for line in file_token:
-    isList,length = list_finder(line)
-    if isList and length == 0:
-        isList, length = list_range_finder(line)
-    if isList:
-        print(isList , length)
-
-print(file_token)
+def compute(file_token):
+    
