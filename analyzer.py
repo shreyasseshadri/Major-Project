@@ -3,7 +3,7 @@ from tokenizer import tokenize, TOK
 tokens = {}
 
 
-tokens['network'] = ['socket', 'connect', 'listen']
+tokens['network'] = ['socket.socket', 'connect', 'listen']
 tokens['compute'] = ['for', 'while']
 tokens['memory'] = ['list', 'import']
 
@@ -17,13 +17,18 @@ lines = []
 with open('sample.py', 'r') as f:
     for line in f.readlines():
         line = line.replace('\n', '').replace('\t', '')
-        # print(line)
         lines.append(line)
 
 file_token = []
 for line in lines:
     line_token = []
+    comment = False
     for token in tokenize(line):
+        if token.txt == "#":
+            comment = True
+        if comment and token.txt != "TOK":
+            comment = False
+            break
         line_token.append(
             (TOK.descr[token.kind], token.txt or None, token.val or None))
 
@@ -76,3 +81,5 @@ for line in file_token:
         isList, length = list_range_finder(line)
     if isList:
         print(isList , length)
+
+print(file_token)
