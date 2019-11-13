@@ -35,7 +35,26 @@ for line in lines:
     line_token.append(line)
     file_token.append(line_token)
 
+def count_tokens():
+    total_tokens=0
+    mem_status,mem_tokens = memory(file_token)
+    if mem_status :
+        total_tokens += mem_tokens
 
+    com_status,com_tokens = compute(file_token)
+    if com_status :
+        total_tokens += com_tokens
+
+    net_status,not_tokens = network(file_token)
+    if net_status :
+        total_tokens += net_tokens
+
+    mem_score = mem_tokens / total_tokens
+    com_score = com_tokens / total_tokens
+    net_score = net_tokens / total_tokens
+
+    print("Memory score : ", mem_score,"\n","Compute score : ", com_score,"\n","Network score : ", net_score,"\n")
+    
 def list_finder(line_token):
     sent = line_token[-1]
     first = sent.find('[')
@@ -72,7 +91,7 @@ def range_finder(line_token):
     return False, 0
 
 
-def check_list(file_token):
+def memory(file_token):
     for line in file_token:
         isList, length = list_finder(line)
         if isList and length == 0:
