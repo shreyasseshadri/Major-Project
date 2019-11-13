@@ -1,4 +1,7 @@
 from tokenizer import tokenize, TOK
+import os
+from os import listdir
+from os.path import isfile, join
 
 tokens = {}
 
@@ -13,27 +16,35 @@ NUMBER = TOK.descr[TOK.NUMBER]
 count_token = {k: 0 for k in tokens}
 type_words = {k: set() for k in tokens}
 
-lines = []
-with open('sample.py', 'r') as f:
-    for line in f.readlines():
-        line = line.replace('\n', '').replace('\t', '')
-        lines.append(line)
 
-file_token = []
-for line in lines:
-    line_token = []
-    comment = False
-    for token in tokenize(line):
-        if token.txt == "#":
-            comment = True
-        if comment and token.txt != "TOK":
-            comment = False
-            break
-        line_token.append(
-            (TOK.descr[token.kind], token.txt or None, token.val or None))
+def generate_token(file_name):
+    lines = []
+    with open(file_name, 'r') as f:
+        for line in f.readlines():
+            line = line.replace('\n', '').replace('\t', '')
+            lines.append(line)
 
-    line_token.append(line)
-    file_token.append(line_token)
+    file_token = []
+    for line in lines:
+        line_token = []
+        comment = False
+        for token in tokenize(line):
+            if token.txt == "#":
+                comment = True
+            if comment and token.txt != "TOK":
+                comment = False
+                break
+            line_token.append(
+                (TOK.descr[token.kind], token.txt or None, token.val or None))
+
+        line_token.append(line)
+        file_token.append(line_token)
+    return file_token
+
+def get_file_tokens(directory):
+    file_names = [os.path.join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
+    file_tokens = {file_name: generate_token(file_name) for file_name in file_names}
+    return file_tokens
 
 
 def list_finder(line_token):
@@ -87,7 +98,7 @@ def memory(file_token):
                 list_types.append((length,sent[info_index:].split(' ')[1]))
     return (True,list_tokens,list_types )if list_tokens>0 else (False,list_tokens,list_types)
 
-print(memory(file_token))
+# print(memory(file_token))
 
 def compute(file_token):
     iteration_count = 0 
@@ -100,4 +111,12 @@ def compute(file_token):
                 iteration_count+=int(for_count)
     return (False,iteration_count) if iteration_count==0 else (True,iteration_count)
 
-print(compute(file_token))
+
+# print(compute(file_token))
+file_tokens = get_file_tokens('programs')
+for file in file_tokens:
+    # print(file_tokens[file])
+    print(file)
+    print(memory(file_tokens[file]))
+    print(compute(file_tokens[file]))
+    print('-'*90)
