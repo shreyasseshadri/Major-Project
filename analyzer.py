@@ -152,7 +152,7 @@ def network(file_token):
         if send_index > 0:
             offset = len(sent[send_index+5:])-4
             network_count += 1
-            network_count += offset/100
+            network_count += offset/10
 
     return (False, network_count) if network_count == 0 else (True, network_count)
 
