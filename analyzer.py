@@ -186,7 +186,7 @@ if __name__ == "__main__":
         sprint('network Score : ' + str(net_score))
         sprint('')
 
-        file_scores.append((file.split('/')[1],mem_tokens,com_tokens,net_tokens))
+        file_scores.append((file.split('/')[1],mem_score,com_score,net_score))
         sprint('='*90)
 
     

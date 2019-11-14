@@ -7,8 +7,10 @@ s.bind(('', port))
 print("socket binded to %s" % (port))
 s.listen(5)
 print("socket is listening")
-while True:
-    c, addr = s.accept()
-    print('Got connection from', addr)
-    c.send('Thank you for connecting')
-    c.close()
+
+c, addr = s.accept()
+print('Got connection from', addr)
+c.send('Thank you for connecting')
+c.close()
+
+a = [1, 2, 3, 4]
