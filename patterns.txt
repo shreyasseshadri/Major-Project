@@ -1,2 +1,3 @@
 %Cpu(s)
 Mem
+wlp2s0
