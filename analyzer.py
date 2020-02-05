@@ -48,9 +48,6 @@ def get_file_tokens(directory):
     return file_tokens
 
 
-file_tokens = get_file_tokens('programs')
-
-
 def compute_score(file_token):
     total_tokens = 0
     mem_status, mem_tokens, _ = memory(file_token)
@@ -162,6 +159,7 @@ def sprint(string):
     output_file.write("\n")
 
 if __name__ == "__main__":
+    file_tokens = get_file_tokens('programs')
     total_mem_token = 0
     total_com_token = 0
     total_net_token = 0
