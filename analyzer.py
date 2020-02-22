@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 
 tokens = {}
-output_file = open('output.txt','w')
+output_file = None
 
 
 tokens['network'] = ['socket.socket', 'connect', 'listen']
@@ -153,53 +153,89 @@ def network(file_token):
 
     return (False, network_count) if network_count == 0 else (True, network_count)
 
-def sprint(string):
+
+def sprint(string, output=False):
     print(string)
-    output_file.write(string)
-    output_file.write("\n")
+    if output:
+        output_file.write(string)
+        output_file.write("\n")
+
+
+def analyze(directory=False, directory_name=None, output=False, output_file_name=None, file_name=None):
+    global output_file
+
+    if output:
+        output_file = open(output_file_name, 'w')
+
+    if directory:
+        file_tokens = get_file_tokens(directory_name)
+        total_mem_token = 0
+        total_com_token = 0
+        total_net_token = 0
+
+        file_scores = []
+        for file in file_tokens:
+            sprint(" File name : " + file.split('/')[1])
+            mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens = compute_score(
+                file_tokens[file])
+            total_com_token += mem_tokens
+            total_mem_token += mem_tokens
+            total_net_token += net_tokens
+
+            sprint('')
+            sprint('Memory Tokens  : ' + str(mem_tokens))
+            sprint('compute Tokens : ' + str(com_tokens))
+            sprint('network Tokens : ' + str(net_tokens))
+            sprint('')
+
+            sprint('Memory Score  : ' + str(mem_score))
+            sprint('compute Score : ' + str(com_score))
+            sprint('network Score : ' + str(net_score))
+            sprint('')
+
+            file_scores.append(
+                (file.split('/')[1], mem_score, com_score, net_score))
+            sprint('='*90)
+
+        sprint("Memory priority order ")
+        for score in sorted(file_scores, key=lambda x: x[1], reverse=True):
+            sprint('File name: ' + score[0] + " score : " + str(score[1]))
+
+        sprint('')
+        sprint("Compute priority order ")
+        for score in sorted(file_scores, key=lambda x: x[2], reverse=True):
+            sprint('File name: ' + score[0] + " score : " + str(score[2]))
+
+        sprint('')
+        sprint("Network priority order ")
+        for score in sorted(file_scores, key=lambda x: x[3], reverse=True):
+            sprint('File name: ' + score[0] + " score : " + str(score[3]))
+
+    else:
+        if file_name:
+            file_token = generate_token(file_name)
+            mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens = compute_score(
+                file_token)
+            if output:
+                sprint('')
+                sprint('Memory Tokens  : ' + str(mem_tokens))
+                sprint('compute Tokens : ' + str(com_tokens))
+                sprint('network Tokens : ' + str(net_tokens))
+                sprint('')
+
+                sprint('Memory Score  : ' + str(mem_score))
+                sprint('compute Score : ' + str(com_score))
+                sprint('network Score : ' + str(net_score))
+                sprint('')
+            return (mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens)
+        else:
+            print('Error')
+            return None
+
+    if output:
+        output_file.close()
+
+    return file_scores
 
 if __name__ == "__main__":
-    file_tokens = get_file_tokens('programs')
-    total_mem_token = 0
-    total_com_token = 0
-    total_net_token = 0
-
-    file_scores = []
-    for file in file_tokens:
-        sprint(" File name : " + file.split('/')[1])
-        mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens = compute_score(
-            file_tokens[file])
-        total_com_token += mem_tokens
-        total_mem_token += mem_tokens
-        total_net_token += net_tokens
-
-        sprint('')
-        sprint('Memory Tokens  : ' + str(mem_tokens))
-        sprint('compute Tokens : ' + str(com_tokens))
-        sprint('network Tokens : ' + str(net_tokens))
-        sprint('')
-
-        sprint('Memory Score  : ' + str(mem_score))
-        sprint('compute Score : ' + str(com_score))
-        sprint('network Score : ' + str(net_score))
-        sprint('')
-
-        file_scores.append((file.split('/')[1],mem_score,com_score,net_score))
-        sprint('='*90)
-
-    
-    sprint("Memory priority order ")
-    for score in sorted(file_scores,key= lambda x: x[1],reverse=True):
-        sprint('File name: ' + score[0] + " score : " + str(score[1]))
-
-    sprint('')
-    sprint("Compute priority order ")
-    for score in sorted(file_scores,key= lambda x: x[2],reverse=True):
-        sprint('File name: ' + score[0] + " score : " + str(score[2]))
-
-    sprint('')
-    sprint("Network priority order ")
-    for score in sorted(file_scores,key= lambda x: x[3],reverse=True):
-        sprint('File name: ' + score[0] + " score : " + str(score[3]))
-
-    output_file.close()
+    analyze(directory=True,directory_name='programs',output=True,output_file_name='output.txt')
