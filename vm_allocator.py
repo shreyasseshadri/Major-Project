@@ -1,33 +1,86 @@
-utilization = {}
-utilization['network'] = []
-utilization['memory'] = []
-utilization['compute'] = []
+import util_extractor as ue
+import analyzer as analyzer
 
-network_format = """
-unix timestamp;iface_name;bytes_out/s;bytes_in/s;bytes_total/s;bytes_in;bytes_out;packets_out/s;packets_in/s;packets_total/s;packets_in;packets_out;errors_out/s;errors_in/s;errors_in;errors_out
-"""
+# A table with vm_id as key and vm usage list as value. The current usage of VM
+vm_table = {}
 
+# Sorted Arrays of all usages each element is a tuple of (value,vm_id)
+comp_usage_list = [(1, '0'), (2, '1'), (3, '2')]
+mem_usage_list = []
+network_usage_list = []
 
-def get_network_info(line, column_name):
-    index = network_format.split(';').index(column_name)
-    return ('' if index < 0 else line.split(';')[index])
+vm_initial_characteristics = {}
 
+def initilise_vm_characteristics():
+    pass
 
-def read_vm_characteristics(util_file):
-    comp_avg = 0
-    mem_avg = 0
-    with open(util_file, 'r') as f:
-        for ind, line in enumerate(f.readlines()[:9]):
-            line = line.replace('\n', '').replace('\t', '').replace(
-                ' ', '').replace('total', '').replace('us', '').split(':')[1]
-            if ind % 3 == 0:
-                comp_avg += float(line.split(',')[0])
-            if (ind - 1) % 3 == 0:
-                mem_avg += float(line.split(',')[0])
-        comp_avg /= 3
-        mem_avg /= 3
-        print(mem_avg, comp_avg)
+def insert_sort(sorted_array, tuple):
+    flag = 0
+    for ind, elem in enumerate(sorted_array):
+        val, _ = elem
+        if val >= tuple[0]:
+            flag = 1
+            break
+    if flag == 0:
+        sorted_array.append(tuple)
+    else:
+        sorted_array.insert(ind, tuple)
 
 
-read_vm_characteristics('util.txt')
-# print(get_info("1580912688;wlp2s0;0.00;4141.72;4141.72;2075;0;0.00;59.88;59.88;30;0;0.00;0.00;0;0","bytes_in/s"))
+# insert_sort(comp_usage_list, (0, 'new'))
+# print(comp_usage_list)
+# Assumes that three lists are sorted
+
+# Updates the sorted list for each characteristic
+def update_sorted_lists(mem_usage, comp_usage, network_usage, vm_id):
+    insert_sort(mem_usage_list, (mem_usage, vm_id))
+    insert_sort(network_usage_list, (network_usage, vm_id))
+    insert_sort(comp_usage_list, (comp_usage, vm_id))
+
+# Inserts a new VM into Vm table, updates sorted lists
+
+
+def insert_new_vm(util_file):
+    mem_usage, comp_usage, network_usage, vm_id = ue.read_vm_characteristics(
+        util_file)
+    print(mem_usage, comp_usage, network_usage, vm_id)
+    vm_table[vm_id] = [mem_usage, comp_usage, network_usage]
+    update_sorted_lists(mem_usage, comp_usage, network_usage, vm_id)
+
+# Updates usage list of already present VMs
+
+
+def update_vm(vm_id, usage_list):
+    if vm_id in vm_table.keys():
+        vm_table[vm_id] = usage_list
+    else:
+        print('Vm not found in the table')
+
+
+# Two algorithms in use. One Task2VM allocation independent of the other Tasks, one dependent on other tasks
+def get_highest(mem_score, com_score, net_score):
+    temp = [(mem_score,"mem"),(com_score,"comp"),(net_score,"net")]
+    temp.sort(key=lambda x: x[0],reverse=True)
+    return temp[0][1]
+
+def independent_Task2Vm(task_scores):
+    (mem_score, com_score, net_score, _ , _,_ ) = task_scores
+    highest_characteristic = get_highest(mem_score,com_score,net_score)
+    allocated_vm = None
+    if highest_characteristic == "mem":
+        pass
+    elif highest_characteristic == "comp":
+        pass
+    elif highest_characteristic == "net":
+        pass
+    print("Allocated VM is : ",allocated_vm)
+
+
+
+def dependent_Task2Vm(tasks_scores):
+    pass
+
+
+# task_scores is a tuple (mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens)
+tasks_scores = analyzer.analyze(file_name='programs/compute.py')
+# insert_new_vm('util0.txt') # This will be asked by VM allocator algorithm to all VMs on allocating new VM.
