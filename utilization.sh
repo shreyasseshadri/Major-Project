@@ -1,6 +1,6 @@
 #!/bin/bash
 
-vm_id="0"
+vm_id="2"
 file_name="util${vm_id}.txt"
 if [ -f $file_name ] ; then
     echo "Removing previous utilization output"

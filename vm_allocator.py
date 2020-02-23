@@ -5,11 +5,7 @@ import analyzer as analyzer
 vm_table = {}
 
 # Sorted Arrays of all usages each element is a tuple of (value,vm_id)
-# comp_usage_list = [(1, '0'), (2, '1'), (3, '2')]
-# mem_usage_list = []
-# network_usage_list = []
-
-# mem,comp,net
+# mem -  Available free Memory , comp - percentage available , net - Available bandwidth
 sorted_usage_list = [[], [], []]
 vm_initial_characteristics = {}
 vm_queue = {}  # Task Queue for all VMs
@@ -42,30 +38,30 @@ def insert_sort(sorted_array, tuple):
         sorted_array.insert(ind, tuple)
 
 
-# Assumes that three lists are sorted
-
-# Updates the sorted list for each characteristic
 def update_sorted_lists(mem_usage, comp_usage, network_usage, vm_id):
-    insert_sort(sorted_usage_list[0],
-                (vm_initial_characteristics[vm_id][1] - mem_usage, vm_id))
-    insert_sort(sorted_usage_list[2],
-                (vm_initial_characteristics[vm_id][2] - network_usage, vm_id))
-    insert_sort(sorted_usage_list[1], (comp_usage, vm_id))
+    # Assumes that three lists are sorted
+    # Updates the sorted list for each characteristic
 
-# Inserts a new VM into Vm table, updates sorted lists
+    insert_sort(sorted_usage_list[0], (mem_usage, vm_id))
+    insert_sort(sorted_usage_list[2],
+                (100000 - network_usage, vm_id))  # Bandwidth assumed to be 100KB/s
+    insert_sort(sorted_usage_list[1], (100-comp_usage, vm_id))
 
 
 def insert_new_vm(util_file):
+    # Inserts a new VM into Vm table, updates sorted lists
+
     mem_usage, comp_usage, network_usage, vm_id = ue.read_vm_characteristics(
         util_file)
+    vm_queue[vm_id] = []
     print(mem_usage, comp_usage, network_usage, vm_id)
-    vm_table[vm_id] = [mem_usage, comp_usage, network_usage]
+    # vm_table[vm_id] = [mem_usage, comp_usage, network_usage]
     update_sorted_lists(mem_usage, comp_usage, network_usage, vm_id)
-
-# Updates usage list of already present VMs
 
 
 def update_vm(vm_id, usage_list):
+    # Updates usage list of already present VMs
+
     if vm_id in vm_table.keys():
         vm_table[vm_id] = usage_list
     else:
@@ -77,23 +73,22 @@ def get_highest(mem_score, com_score, net_score):
     temp.sort(key=lambda x: x[0], reverse=True)
     return temp[0][1]
 
-# Two algorithms in use. One Task2VM allocation independent of the other Tasks, one dependent on other tasks
+
+def best_vm_for_char(char):
+    # for a given charecteristic it gives best VM from sorted VM list
+
+    return sorted_usage_list[name2index(char)][-1][1]
 
 
 def independent_Task2Vm(task_scores, task_name="default"):
+    # Two algorithms in use. One Task2VM allocation independent of the other Tasks, one dependent on other tasks
+    # Input is a sorted list each for mem,comp,net of task names in ascending order of scores
+
     (mem_score, com_score, net_score, _, _, _) = task_scores
     highest_characteristic = get_highest(mem_score, com_score, net_score)
-    allocated_vm = sorted_usage_list[name2index(highest_characteristic)][-1][1]
-    # if highest_characteristic == "mem":
-    #     allocated_vm = mem_usage_list[-1][1]
-    # elif highest_characteristic == "comp":
-    #     allocated_vm = comp_usage_list[-1][1]
-    # elif highest_characteristic == "net":
-    #     allocated_vm = network_usage_list[-1][1]
+    allocated_vm = best_vm_for_char(highest_characteristic)
     vm_queue[allocated_vm].append(task_name)
     print("Allocated VM is : ", allocated_vm)
-
-# Input is a sorted list each for mem,comp,net of task names in ascending order of scores
 
 
 def occurence(array):
@@ -105,29 +100,81 @@ def occurence(array):
             temp_dict[task] = [index2name(ind)]
     return temp_dict
 
-# for a given charecteristic it gives best VM from sorted VM list
-
-
-def best_vm_for_char(char):
-    return sorted_usage_list[index2name(char)][-1][0]
-# Input is task scores a dict, sorted task names a 2d list.
-
 
 def dependent_Task2Vm(task_scores, sorted_task_names):
-    index = len(sorted_task_names[0])
-    allocated_vms = {k: 0 for k, v in task_scores}
-    while index >= 0 and len(allocated_vms) > 0:
+    # Input is task scores a dict, sorted task names a 2d list.
+    index = len(sorted_task_names[0])-1
+    unallocated_vms = {k: 0 for k in task_scores}
+    while index >= 0 and len(unallocated_vms) > 0:
         temp_array = [a[index] for a in sorted_task_names]
         occurence_dict = occurence(temp_array)
-        for k, l in occurence_dict:
+        for k in occurence_dict:
+            if k not in unallocated_vms.keys():
+                continue
+            l = occurence_dict[k]
             if len(l) == 1:
                 vm_queue[best_vm_for_char(l[0])].append(k)
+                print("Allocated VM is : ", best_vm_for_char(l[0]))
             else:
-                independent_Task2Vm(task_scores, k)
-            del allocated_vms[k]
+                independent_Task2Vm(task_scores[k], k)
+            del unallocated_vms[k]
         index -= 1
 
 
-    # task_scores is a tuple (mem_score, com_score, net_score, mem_tokens, com_tokens, net_tokens)
-tasks_scores = analyzer.analyze(file_name='programs/compute.py')
-# insert_new_vm('util0.txt') # This will be asked by VM allocator algorithm to all VMs on allocating new VM.
+def poll_vm(vm_id):
+    # Supposed to poll and retirieve the util file as of now flask will be used
+    pass
+
+
+def create_sorted_task_names(task_scores):
+    # Given a dict of task scores, it gives the sorted_task_name 2d matrix used in dependent task2Vm
+
+    sorted_task_names = []
+    to_sort = [[], [], []]
+
+    for t in task_scores:
+        for ind, score in enumerate(task_scores[t][:3]):
+            to_sort[ind].append((score, t))
+
+    for l in to_sort:
+        sorted_task_names.append([t[1] for t in sorted(l, key=lambda x: x[0])])
+    return sorted_task_names
+
+
+if __name__ == "__main__":
+    insert_new_vm("util0.txt")
+    insert_new_vm("util1.txt")
+    insert_new_vm("util2.txt")
+    print(sorted_usage_list)
+
+    # Testing dependent task2Vm
+    independent_Task2Vm(analyzer.analyze(
+        file_name='programs/memory.py'), 'memory.py')
+    independent_Task2Vm(analyzer.analyze(
+        file_name='programs/compute.py'), 'compute.py')
+    independent_Task2Vm(analyzer.analyze(
+        file_name='programs/network.py'), 'network.py')
+
+    print(vm_queue)
+
+    for k in vm_queue:
+        vm_queue[k].clear()
+
+    print(vm_queue)
+    # Testing Dependent task2Vm
+
+    sorted_task_names = [
+        ['t1', 't2', 't3'],
+        ['t2', 't1', 't3'],
+        ['t3', 't2', 't1']
+    ]
+    task_scores = {
+        't1': (0.2, 0.3, 0.5, None, None, None),
+        't2': (0.3, 0.2, 0.4, None, None, None),
+        't3': (0.5, 0.49, 0.01, None, None, None)
+    }
+    # dependent_Task2Vm(task_scores, sorted_task_names)
+    # print(vm_queue)
+
+    temp = create_sorted_task_names(task_scores)
+    print(temp == sorted_task_names)

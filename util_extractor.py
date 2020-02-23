@@ -32,12 +32,12 @@ def read_vm_characteristics(util_file):
                 network_avg += float(get_network_info(line, 'bytes_total/s'))
                 network_count += 1
             else:
-                line = line.replace('total', '').replace('us', '').split(':')[1]
+                line = line.replace('total', '').replace('us', '').replace('free','').split(':')[1]
                 if ind % 3 == 0:
                     comp_avg += float(line.split(',')[0])
                     comp_count += 1
                 elif (ind - 1) % 3 == 0:
-                    mem_avg += float(line.split(',')[0])
+                    mem_avg += float(line.split(',')[1])
                     mem_count += 1
         comp_avg /= comp_count
         mem_avg /= mem_count
