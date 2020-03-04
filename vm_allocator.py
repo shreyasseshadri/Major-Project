@@ -54,7 +54,7 @@ def insert_new_vm(util_file):
     mem_usage, comp_usage, network_usage, vm_id = ue.read_vm_characteristics(
         util_file)
     vm_queue[vm_id] = []
-    print(mem_usage, comp_usage, network_usage, vm_id)
+    print("VM ID: ",vm_id,"Memory Usage: ",mem_usage,"Comute Usage: ",comp_usage,"Netork Usage: ",network_usage)
     # vm_table[vm_id] = [mem_usage, comp_usage, network_usage]
     update_sorted_lists(mem_usage, comp_usage, network_usage, vm_id)
 
@@ -88,7 +88,7 @@ def independent_Task2Vm(task_scores, task_name="default"):
     highest_characteristic = get_highest(mem_score, com_score, net_score)
     allocated_vm = best_vm_for_char(highest_characteristic)
     vm_queue[allocated_vm].append(task_name)
-    print("Allocated VM is : ", allocated_vm)
+    # print("Allocated VM is : ", allocated_vm)
 
 
 def occurence(array):
@@ -114,7 +114,7 @@ def dependent_Task2Vm(task_scores, sorted_task_names):
             l = occurence_dict[k]
             if len(l) == 1:
                 vm_queue[best_vm_for_char(l[0])].append(k)
-                print("Allocated VM is : ", best_vm_for_char(l[0]))
+                # print("Allocated VM is : ", best_vm_for_char(l[0]))
             else:
                 independent_Task2Vm(task_scores[k], k)
             del unallocated_vms[k]
@@ -140,16 +140,28 @@ def create_sorted_task_names(task_scores):
         sorted_task_names.append([t[1] for t in sorted(l, key=lambda x: x[0])])
     return sorted_task_names
 
+
 def clear_queue():
     for k in vm_queue:
         vm_queue[k].clear()
 
+
 if __name__ == "__main__":
+
+    print('Parsing util file')
     insert_new_vm("util0.txt")
     insert_new_vm("util1.txt")
     insert_new_vm("util2.txt")
-    print(sorted_usage_list)
 
+    print('\n','='*90,'\n')
+
+    print('Sorted List of available resources')
+    for i, l in enumerate(sorted_usage_list):
+        print(index2name(i)+" : "+str(l))
+
+    print('\n','='*90,'\n')
+
+    print('Testing dependent task2Vm')
     # Testing dependent task2Vm
     independent_Task2Vm(analyzer.analyze(
         file_name='programs/memory.py'), 'memory.py')
@@ -160,9 +172,11 @@ if __name__ == "__main__":
 
     print(vm_queue)
 
+    print('\n','='*90,'\n')
     clear_queue()
 
-    print(vm_queue)
+    print('Testing Dependent task2Vm by example 1')
+    
     # Testing Dependent task2Vm
 
     sorted_task_names = [
@@ -175,32 +189,40 @@ if __name__ == "__main__":
         't2': (0.3, 0.2, 0.4, None, None, None),
         't3': (0.5, 0.49, 0.01, None, None, None)
     }
+
+    print(task_scores)
     dependent_Task2Vm(task_scores, sorted_task_names)
     print(vm_queue)
 
+    print('\n','='*90,'\n')
     clear_queue()
 
-    temp = create_sorted_task_names(task_scores)
-    print(temp == sorted_task_names)
+    print('Testing Dependent task2Vm by memory.py, compute.py, network.py')
 
-    file_names = ['memory.py','compute.py','network.py']
-    task_scores = {f:analyzer.analyze(file_name='programs/'+f) for f in file_names}
+    file_names = ['memory.py', 'compute.py', 'network.py']
+    task_scores = {f: analyzer.analyze(
+        file_name='programs/'+f) for f in file_names}
 
     print(task_scores)
     sorted_task_names = create_sorted_task_names(task_scores)
 
-    dependent_Task2Vm(task_scores,sorted_task_names)
+    dependent_Task2Vm(task_scores, sorted_task_names)
 
     print(vm_queue)
 
     clear_queue()
+
+    print('\n','='*90,'\n')
     # Another example
+
+    print('Testing Dependent Task2Vm by example 2')
     task_scores = {
         't1': (0.2, 0.3, 0.5, None, None, None),
         't2': (0.3, 0.49, 0.01, None, None, None),
         't3': (0.5, 0.2, 0.3, None, None, None)
     }
-
-    dependent_Task2Vm(task_scores,create_sorted_task_names(task_scores))
-
+    print(task_scores)
+    dependent_Task2Vm(task_scores, create_sorted_task_names(task_scores))
     print(vm_queue)
+
+    print('\n','='*90,'\n')
