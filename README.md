@@ -52,6 +52,18 @@ This task allocationn requires a live table of resource usage(or available free 
 - Sample Programs have been given under `/programs` directory.
 - Three files `util0.txt`, `util1.txt`, `util2.txt` have been generated.
 
+## VM Setup
+
+Each VM should have its util file after generating it from the VM_utilisation part. 
+
+The `server.py` file will be running on the master VM, (the VM that runs the allocation algorithm). 
+
+Now from each VM run the following command
+```
+curl -i -X POST http://<master_ip_address>:5000/util --data-binary "@util_file.txt"
+
+```
+> NOTE: '@' in the above command is neccessary.
 ### Team
 ```
 Shreyas Seshadri - 16IT135 
