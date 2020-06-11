@@ -1,5 +1,4 @@
-# Task Scheduling in cloud environment
-
+<h1> <center>Task Scheduling in cloud environment </center></h1>
 Classifying the task based based  on the requirements and prioritizing task executions on VMs based on the their current workload.
 
 ## Instructions to run
