@@ -1,6 +1,6 @@
 #!/bin/bash
 
-vm_id="$(whoami)"
+vm_id="$(hostname)"
 file_name="util${vm_id}.txt"
 if [ -f $file_name ] ; then
     echo "Removing previous utilization output"

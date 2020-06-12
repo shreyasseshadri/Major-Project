@@ -1,6 +1,5 @@
 import threading
 from flask import Flask, request
-import util_extractor as ue
 import tempfile
 import os
 import vm_allocator as allocator
