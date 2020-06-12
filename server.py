@@ -41,8 +41,8 @@ if __name__ == "__main__":
 				allocator.independent_Task2Vm(analyzer.analyze(
 					file_name='programs/network.py'), 'network.py')
 
-				print(allocator.vm_queue)
-
+				# print(allocator.vm_queue)
+				allocator.print_queue()
 				print('\n','='*90,'\n')
 				allocator.clear_queue()
 				print('Testing Dependent task2Vm by example 1')
@@ -60,9 +60,11 @@ if __name__ == "__main__":
 					't3': (0.5, 0.49, 0.01, None, None, None)
 				}
 
-				print(task_scores)
+				# print(task_scores)
+				allocator.print_task_scores(task_scores)
 				allocator.dependent_Task2Vm(task_scores, sorted_task_names)
-				print(allocator.vm_queue)
+				# print(allocator.vm_queue)
+				allocator.print_queue()
 
 				print('\n','='*90,'\n')
 				allocator.clear_queue()
@@ -73,12 +75,14 @@ if __name__ == "__main__":
 				task_scores = {f: analyzer.analyze(
 					file_name='programs/'+f) for f in file_names}
 
-				print(task_scores)
+				# print(task_scores)
+				allocator.print_task_scores(task_scores)
 				sorted_task_names = allocator.create_sorted_task_names(task_scores)
 
 				allocator.dependent_Task2Vm(task_scores, sorted_task_names)
 
-				print(allocator.vm_queue)
+				# print(allocator.vm_queue)
+				allocator.print_queue()
 
 				allocator.clear_queue()
 
@@ -91,9 +95,11 @@ if __name__ == "__main__":
 					't2': (0.3, 0.49, 0.01, None, None, None),
 					't3': (0.5, 0.2, 0.3, None, None, None)
 				}
-				print(task_scores)
+				# print(task_scores)
+				allocator.print_task_scores(task_scores)
 				allocator.dependent_Task2Vm(task_scores, allocator.create_sorted_task_names(task_scores))
-				print(allocator.vm_queue)
+				# print(allocator.vm_queue)
+				allocator.print_queue()
 
 				print('\n','='*90,'\n')
 				t1.join()
