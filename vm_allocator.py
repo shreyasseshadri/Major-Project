@@ -179,8 +179,8 @@ if __name__ == "__main__":
 
     print('\n', '='*90, '\n')
 
-    print('Testing dependent task2Vm')
-    # Testing dependent task2Vm
+    print('Testing independent task2Vm')
+    # Testing independent task2Vm
     independent_Task2Vm(analyzer.analyze(
         file_name='programs/memory.py'), 'memory.py')
     independent_Task2Vm(analyzer.analyze(

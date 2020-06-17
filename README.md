@@ -32,7 +32,8 @@ The utilsation of each resources in a VM running a task is obtained and is used 
 - A bash script `utilization.sh` is used to get the current resource usage of the VM running the program. A `vm_id` is assigned to each VM and in this case is the Machine's username obtained using `whoami` command. 
     - `top` command is used to get the CPU and memory usage.
     - `bwm-ng` command is used to get the network usage.
-- The output of the previous script is parsed with `util_extractor.py`. `read_vm_characteristics` is exposed by this file and is used to parse the output from the previous script, given the output file name as input.
+- The output of the previous script is parsed with `util_extractor.py`.  
+`read_vm_characteristics` is exposed by this file and is used to parse the output from the previous script, given the output file name as input.
 
 ### Task Allocation
 
@@ -52,18 +53,33 @@ This task allocationn requires a live table of resource usage(or available free 
 - Sample Programs have been given under `/programs` directory.
 - Three files `util0.txt`, `util1.txt`, `util2.txt` have been generated.
 
-## VM Setup
-
-Each VM should have its util file after generating it from the VM_utilisation part. 
-
-The `server.py` file will be running on the master VM, (the VM that runs the allocation algorithm). 
-
-Now from each VM run the following command
+## Running the program
+### Dependencies
+- python3
+- pip3
+    
+    In case of ubuntu
+    ```
+    sudo apt-get install python3-pip
+    ```
+- tokenizer module
+    ```
+    pip3 install tokenizer
+    ```
+## Running 
+Analyzer
 ```
-curl -i -X POST http://<master_ip_address>:5000/util --data-binary "@util_file.txt"
-
+python3 analyzer.py
 ```
-> NOTE: '@' in the above command is neccessary.
+Util File Parser
+```
+python3 util_extractor.py
+```
+Allocator
+```
+python3 vm_allocator.py
+```
+
 ### Team
 ```
 Shreyas Seshadri - 16IT135 

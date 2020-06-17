@@ -1,3 +1,6 @@
 %Cpu(s)
+Cpu(s)
 Mem
+Swap
 wlp2s0
+eth0
